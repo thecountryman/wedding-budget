@@ -1,0 +1,314 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2867
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="en">\
+<head>\
+  <meta charset="UTF-8">\
+  <meta name="viewport" content="width=device\uc0\u8209 width, initial\u8209 scale=1.0">\
+  <title>Wedding Budget Calculator</title>\
+  <style>\
+    /* Base styling */\
+    body \{\
+      margin: 0;\
+      padding: 0;\
+      background: #f7f7f7;\
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;\
+      color: #333;\
+      display: flex;\
+      align-items: center;\
+      justify-content: center;\
+      min-height: 100vh;\
+    \}\
+    .card \{\
+      background: white;\
+      padding: 2rem;\
+      border-radius: 12px;\
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);\
+      max-width: 600px;\
+      width: 100%;\
+      box-sizing: border-box;\
+    \}\
+    h1 \{\
+      font-family: Georgia, "Times New Roman", Times, serif;\
+      font-size: 2rem;\
+      margin-bottom: 1rem;\
+      text-align: center;\
+      color: #333;\
+    \}\
+    label \{\
+      display: block;\
+      margin-bottom: .5rem;\
+      font-weight: bold;\
+    \}\
+    input[type="number"] \{\
+      width: 100%;\
+      padding: .5rem;\
+      font-size: 1rem;\
+      box-sizing: border-box;\
+      margin-bottom: 1rem;\
+      border: 1px solid #ccc;\
+      border-radius: 6px;\
+    \}\
+    .category-row \{\
+      display: flex;\
+      align-items: center;\
+      margin-bottom: 1rem;\
+    \}\
+    .category-row label \{\
+      flex: 1 1 30%;\
+      margin: 0;\
+      font-weight: normal;\
+    \}\
+    .category-row input[type="range"],\
+    .category-row input[type="number"].pct-input \{\
+      flex: 1 1 40%;\
+    \}\
+    .category-row .amount \{\
+      flex: 1 1 30%;\
+      text-align: right;\
+      font-weight: bold;\
+    \}\
+    input[type="range"] \{\
+      margin: 0 .5rem;\
+    \}\
+    .buttons \{\
+      display: flex;\
+      justify-content: space-between;\
+      margin-top: 2rem;\
+    \}\
+    button \{\
+      padding: .75rem 1.5rem;\
+      font-size: 1rem;\
+      border: none;\
+      border-radius: 6px;\
+      cursor: pointer;\
+      font-family: inherit;\
+    \}\
+    .btn-reset \{\
+      background: #ccc;\
+      color: #333;\
+    \}\
+    .btn-download \{\
+      background: #d4af37;\
+      color: white;\
+    \}\
+    /* subtle animation */\
+    .amount \{\
+      transition: all .3s ease;\
+    \}\
+    @media (max-width: 600px) \{\
+      .category-row \{\
+        flex-direction: column;\
+        align-items: flex-start;\
+      \}\
+      .category-row label,\
+      .category-row input[type="range"],\
+      .category-row input[type="number"].pct-input,\
+      .category-row .amount \{\
+        width: 100%;\
+      \}\
+      .category-row .amount \{\
+        text-align: left;\
+        margin-top: .5rem;\
+      \}\
+      .buttons \{\
+        flex-direction: column;\
+      \}\
+      .buttons button \{\
+        width: 100%;\
+        margin-bottom: .5rem;\
+      \}\
+      .buttons button:last-child \{\
+        margin-bottom: 0;\
+      \}\
+    \}\
+    /* The data section for future AI integration */\
+    #data-section \{\
+      margin-top: 2rem;\
+      padding: 1rem;\
+      border-top: 1px solid #eee;\
+      font-size: 0.9rem;\
+      color: #666;\
+    \}\
+  </style>\
+</head>\
+<body>\
+  <div class="card">\
+    <h1>Wedding Budget Calculator</h1>\
+    <label for="total-budget">Total Wedding Budget (USD):</label>\
+    <input type="number" id="total-budget" value="0" min="0" step="100" />\
+    \
+    <div id="categories">\
+      <!-- Category rows will be injected here -->\
+    </div>\
+    \
+    <div class="buttons">\
+      <button class="btn-reset" id="reset-btn">Reset</button>\
+      <button class="btn-download" id="download-btn">Download My Budget</button>\
+    </div>\
+    \
+    <div id="data-section">\
+      <!-- Future AI agent data integration point -->\
+      <em>Data section for AI integration will appear here.</em>\
+    </div>\
+  </div>\
+  \
+  <script>\
+    // Categories definitions\
+    const categories = [\
+      \{ key: 'venue', label: 'Venue', pct: 30 \},\
+      \{ key: 'catering', label: 'Catering', pct: 20 \},\
+      \{ key: 'photo', label: 'Photography/Videography', pct: 10 \},\
+      \{ key: 'attire', label: 'Attire', pct: 10 \},\
+      \{ key: 'decor', label: 'Flowers & Decor', pct: 10 \},\
+      \{ key: 'entertainment', label: 'Entertainment', pct: 10 \},\
+      \{ key: 'misc', label: 'Miscellaneous', pct: 10 \}\
+    ];\
+    \
+    const totalBudgetInput = document.getElementById('total-budget');\
+    const categoriesDiv = document.getElementById('categories');\
+    const resetBtn = document.getElementById('reset-btn');\
+    const downloadBtn = document.getElementById('download-btn');\
+    const dataSection = document.getElementById('data-section');\
+    \
+    let state = \{\
+      total: 0,\
+      allocations: \{\}\
+    \};\
+    \
+    function init() \{\
+      // Initialize allocations\
+      categories.forEach(cat => \{\
+        state.allocations[cat.key] = \{ pct: cat.pct, amount: 0 \};\
+      \});\
+      \
+      // Build UI rows\
+      categoriesDiv.innerHTML = '';\
+      categories.forEach(cat => \{\
+        const row = document.createElement('div');\
+        row.className = 'category-row';\
+        row.innerHTML = `\
+          <label for="pct-$\{cat.key\}">$\{cat.label\} ($\{cat.pct\}%)</label>\
+          <input type="range" id="slider-$\{cat.key\}" min="0" max="100" value="$\{cat.pct\}" />\
+          <input type="number" class="pct-input" id="input-$\{cat.key\}" value="$\{cat.pct\}" min="0" max="100" step="1" /> %\
+          <div class="amount" id="amount-$\{cat.key\}">$0</div>\
+        `;\
+        categoriesDiv.appendChild(row);\
+        \
+        // Add event listeners\
+        const slider = document.getElementById(`slider-$\{cat.key\}`);\
+        const pctInput = document.getElementById(`input-$\{cat.key\}`);\
+        \
+        slider.addEventListener('input', () => \{\
+          pctInput.value = slider.value;\
+          onPctChange(cat.key, parseFloat(slider.value));\
+        \});\
+        pctInput.addEventListener('change', () => \{\
+          let val = parseFloat(pctInput.value);\
+          if (isNaN(val) || val < 0) val = 0;\
+          if (val > 100) val = 100;\
+          pctInput.value = val;\
+          slider.value = val;\
+          onPctChange(cat.key, val);\
+        \});\
+      \});\
+      \
+      totalBudgetInput.addEventListener('input', () => \{\
+        state.total = parseFloat(totalBudgetInput.value) || 0;\
+        recalc();\
+      \});\
+      \
+      resetBtn.addEventListener('click', () => \{\
+        totalBudgetInput.value = 0;\
+        state.total = 0;\
+        categories.forEach(cat => \{\
+          state.allocations[cat.key].pct = cat.pct;\
+          document.getElementById(`slider-$\{cat.key\}`).value = cat.pct;\
+          document.getElementById(`input-$\{cat.key\}`).value = cat.pct;\
+          document.querySelector(`.category-row label[for="pct-$\{cat.key\}"]`).innerText = \\`\\$\{cat.label\} (\\$\{cat.pct\}%)\\`;\
+        \});\
+        recalc();\
+      \});\
+      \
+      downloadBtn.addEventListener('click', downloadBudget);\
+      \
+      recalc();\
+    \}\
+    \
+    function onPctChange(changedKey, newPct) \{\
+      // Update the changed one\
+      state.allocations[changedKey].pct = newPct;\
+      \
+      // Then ensure total of all percentages = 100\
+      let sumPct = 0;\
+      categories.forEach(cat => \{\
+        sumPct += state.allocations[cat.key].pct;\
+      \});\
+      if (sumPct !== 100) \{\
+        // Adjust proportionally the others (excluding changed) to fit 100 total\
+        const diff = 100 - newPct;\
+        const otherKeys = categories.filter(cat => cat.key !== changedKey).map(cat => cat.key);\
+        const otherSumBefore = otherKeys.reduce((acc, key) => acc + state.allocations[key].pct, 0);\
+        if (otherSumBefore > 0) \{\
+          otherKeys.forEach(key => \{\
+            state.allocations[key].pct = (state.allocations[key].pct / otherSumBefore) * diff;\
+            // Update UI sliders & inputs\
+            document.getElementById(`slider-$\{key\}`).value = state.allocations[key].pct.toFixed(2);\
+            document.getElementById(`input-$\{key\}`).value = state.allocations[key].pct.toFixed(2);\
+            document.querySelector(`.category-row label[for="pct-$\{key\}"]`).innerText =\
+              \\`\\$\{categories.find(c=>c.key===key).label\} (\\$\{parseFloat(state.allocations[key].pct).toFixed(2)\}%)\\`;\
+          \});\
+        \}\
+      \}\
+      // Update label for changed\
+      document.querySelector(`.category-row label[for="pct-$\{changedKey\}"]`).innerText =\
+        \\`\\$\{categories.find(c=>c.key===changedKey).label\} (\\$\{parseFloat(newPct).toFixed(2)\}%)\\`;\
+      recalc();\
+    \}\
+    \
+    function recalc() \{\
+      const total = state.total;\
+      categories.forEach(cat => \{\
+        const alloc = state.allocations[cat.key];\
+        const amount = (alloc.pct / 100) * total;\
+        alloc.amount = amount;\
+        const amountDiv = document.getElementById(`amount-$\{cat.key\}`);\
+        amountDiv.innerText = `$$\{amount.toLocaleString(undefined, \{minimumFractionDigits:2, maximumFractionDigits:2\})\}`;\
+      \});\
+    \}\
+    \
+    function downloadBudget() \{\
+      const total = state.total;\
+      if (!total || total <= 0) \{\
+        alert('Please enter a total budget greater than zero to download.');\
+        return;\
+      \}\
+      let content = 'Category,Percentage,Amount (USD)\\\\n';\
+      categories.forEach(cat => \{\
+        const a = state.allocations[cat.key];\
+        content += \\`\\$\{cat.label\},\\$\{a.pct.toFixed(2)\}%,"\\$ \\$\{a.amount.toLocaleString(undefined, \{minimumFractionDigits:2, maximumFractionDigits:2\})\}"\\\\n\\`;\
+      \});\
+      content += \\`Total,,\\$ \\$\{total.toLocaleString(undefined, \{minimumFractionDigits:2, maximumFractionDigits:2\})\}\\\\n\\`;\
+      \
+      const blob = new Blob([content], \{ type: 'text/csv;charset=utf-8;' \});\
+      const url = URL.createObjectURL(blob);\
+      const link = document.createElement('a');\
+      link.setAttribute('href', url);\
+      link.setAttribute('download', 'wedding\uc0\u8209 budget.csv');\
+      link.style.display = 'none';\
+      document.body.appendChild(link);\
+      link.click();\
+      document.body.removeChild(link);\
+    \}\
+    \
+    // Initialize on load\
+    window.addEventListener('DOMContentLoaded', init);\
+  </script>\
+</body>\
+</html>\
+}
